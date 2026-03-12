@@ -17,47 +17,38 @@ font-family:Poppins;
 }
 
 body{
-
 height:100vh;
 background:linear-gradient(140deg,#0f172a,#020617,#1e293b);
 display:flex;
 justify-content:center;
 align-items:center;
 color:white;
-
 }
 
 .panel{
-
 width:460px;
 background:rgba(255,255,255,0.05);
 border-radius:18px;
 padding:40px;
 backdrop-filter:blur(18px);
 box-shadow:0 30px 60px rgba(0,0,0,0.6);
-
 }
 
 .logo{
-
 font-family:Orbitron;
 font-size:28px;
 text-align:center;
 margin-bottom:8px;
-
 }
 
 .tagline{
-
 text-align:center;
 font-size:13px;
 opacity:0.6;
 margin-bottom:30px;
-
 }
 
 input{
-
 width:100%;
 padding:12px;
 border-radius:10px;
@@ -65,18 +56,15 @@ border:none;
 background:#020617;
 color:white;
 margin-bottom:20px;
-
 }
 
 .dropzone{
-
 border:2px dashed #38bdf8;
 border-radius:12px;
 padding:30px;
 text-align:center;
 cursor:pointer;
 margin-bottom:20px;
-
 }
 
 .dropzone:hover{
@@ -84,7 +72,6 @@ background:rgba(255,255,255,0.04);
 }
 
 button{
-
 width:100%;
 padding:13px;
 border:none;
@@ -92,48 +79,27 @@ border-radius:10px;
 background:#38bdf8;
 font-weight:600;
 cursor:pointer;
-transition:0.3s;
-
-}
-
-button:hover{
-background:#60d3ff;
 }
 
 .progress{
-
 margin-top:20px;
 height:8px;
 background:#111827;
 border-radius:6px;
 overflow:hidden;
-
 }
 
 .bar{
-
 height:100%;
 width:0%;
 background:#38bdf8;
-
 }
 
 .status{
-
 margin-top:15px;
 font-size:13px;
 text-align:center;
 opacity:0.8;
-
-}
-
-.footer{
-
-margin-top:25px;
-text-align:center;
-font-size:11px;
-opacity:0.4;
-
 }
 
 </style>
@@ -162,8 +128,6 @@ opacity:0.4;
 
 <div class="status" id="status"></div>
 
-<div class="footer">Secure Personal Storage Portal</div>
-
 </div>
 
 <script>
@@ -175,9 +139,7 @@ const TOKEN="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"
 const fileInput=document.getElementById("fileInput")
 
 fileInput.addEventListener("change",()=>{
-//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
 document.getElementById("fileText").innerText=fileInput.files[0].name
-
 })
 
 async function upload(){
@@ -185,7 +147,7 @@ async function upload(){
 const key=document.getElementById("key").value
 const file=fileInput.files[0]
 
-if(!key||!file){
+if(!key || !file){
 alert("Missing file or key")
 return
 }
@@ -194,41 +156,45 @@ const reader=new FileReader()
 
 reader.onload=async function(){
 
-const base64=btoa(reader.result)
+const bytes = new Uint8Array(reader.result)
+let binary=""
+
+for(let i=0;i<bytes.byteLength;i++){
+binary += String.fromCharCode(bytes[i])
+}
+
+const base64=btoa(binary)
 
 const path=`CodeDepot/${key}/${file.name}`
 
 document.getElementById("status").innerText="Uploading..."
 document.getElementById("bar").style.width="40%"
 
-const res=await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}`,{
-
+const res = await fetch(
+`https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}`,
+{
 method:"PUT",
-
 headers:{
-"Authorization":"Bearer "+TOKEN,
-"Content-Type":"application/json"
+Authorization:`Bearer ${TOKEN}`,
+Accept:"application/vnd.github+json"
 },
-
 body:JSON.stringify({
 message:"CodeDepot upload",
 content:base64
 })
-
 })
 
 document.getElementById("bar").style.width="100%"
 
 if(res.ok){
 document.getElementById("status").innerText="Upload Successful"
-}
-else{
+}else{
 document.getElementById("status").innerText="Upload Failed"
 }
 
 }
 
-reader.readAsBinaryString(file)
+reader.readAsArrayBuffer(file)
 
 }
 
